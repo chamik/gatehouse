@@ -1,6 +1,6 @@
 {
     "terminal.integrated.env.linux": {
-        "PATH": "/home/kubik/.platformio/penv/bin:/home/kubik/.platformio/penv:/home/kubik/bin /home/kubik/.local/bin /home/kubik/.npm-packages/bin /home/kubik/.dotnet/tools/:/home/kubik/bin:/home/kubik/.local/bin:/home/kubik/.npm-packages/bin:/home/kubik/.dotnet/tools/:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin",
+        "PATH": "/home/marian/.platformio/penv/bin:/home/marian/.platformio/penv:/home/marian/bin /home/marian/.local/bin /home/marian/.npm-packages/bin /home/marian/.dotnet/tools/ /opt/geckodriver /home/marian/fuchsia/.jiri_root/bin /home/marian/.platformio/penv/bin /home/marian/.platformio/penv /usr/local/musl/bin:/home/marian/bin:/home/marian/.local/bin:/home/marian/.npm-packages/bin:/home/marian/.dotnet/tools/:/opt/geckodriver:/home/marian/fuchsia/.jiri_root/bin:/home/marian/.platformio/penv/bin:/home/marian/.platformio/penv:/usr/local/musl/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin",
         "PLATFORMIO_CALLER": "vscode"
     }
 }

@@ -11,7 +11,7 @@
 #define SS_PIN 10
 #define RST_PIN 9
 
-typedef String user_t;
+typedef char user_t[8];
 
 user_t master;
 user_t bois[8];
@@ -19,13 +19,22 @@ user_t bois[8];
 MFRC522 mfrc(SS_PIN, RST_PIN);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-user_t readUser(uint8_t address){
-    char data[8];
-    for (size_t i = 0; i < 8; i++)
-    {
-        data[i] = EEPROM.read[address + i];
+void loadUser(char index) {
+    for (int i = 0; i < 8; i++) {
+        bois[index][i] = EEPROM.read(8 * index + 9);
     }
-    return {data};
+}
+
+void loadUsers() {
+    char count = EEPROM.read(0);
+
+    for (int i = 0; i < 8; i++) {
+        master[i] = EEPROM.read(i + 1);
+    }
+    
+    for (int i = 0; i < count; i++) {
+        loadUser(i);
+    }
 }
 
 void setup() {
@@ -44,12 +53,9 @@ void setup() {
     lcd.print("AAAAAAAAAAAAAAAA");
 
     mfrc.PCD_SetAntennaGain(mfrc.RxGain_max);
-
-    uint8_t users_count = EEPROM.read[0];
 }
 
 
 void loop() {
-    // put your main code here, to run repeatedly:
-
+    
 }
