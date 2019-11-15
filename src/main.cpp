@@ -20,7 +20,7 @@ enum CardType {
 };
 
 user_t master;
-user_t *bois;
+user_t *bois = (user_t*) malloc(8 * sizeof(user_t));
 int n_users = 0;
 
 MFRC522 mfrc(SS_PIN, RST_PIN);
@@ -65,9 +65,35 @@ CardType checkCard() {
 
 void masterMode() {
     Serial.println("boi we got master");
-    lcd.print("MASTER");
+    lcd.clear();
+    lcd.print("     MASTER");
+    delay(2000);
 
     // load new cards and do some other boring stuff
+    while (true) {
+        if (!mfrc.PICC_IsNewCardPresent())
+            continue;
+
+        if (!mfrc.PICC_ReadCardSerial())
+            continue;
+
+        CardType cardType = checkCard();
+        if (cardType == Boi) {
+            lcd.print("you idiot");
+            // clear dat boi
+        } else if (cardType == Unauthorized) {
+            bois[n_users][0] = mfrc.uid.uidByte[0];
+            bois[n_users][1] = mfrc.uid.uidByte[1];
+            bois[n_users][2] = mfrc.uid.uidByte[2];
+            bois[n_users][3] = mfrc.uid.uidByte[3];
+            n_users++;
+            // realloc
+        } else if (cardType == Master) {
+            Serial.println("exitting master mode");
+            delay(2000);
+            return;
+        }
+    }
 }
 
 void setup() {
@@ -94,6 +120,7 @@ void setup() {
 
 
 void loop() {
+    lcd.print("AAAAAAAAAAAAAAAA");
     if (!mfrc.PICC_IsNewCardPresent())
         return;
 
