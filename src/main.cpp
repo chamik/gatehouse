@@ -20,26 +20,28 @@ enum CardType {
 };
 
 user_t master;
-user_t *bois = (user_t*) malloc(8 * sizeof(user_t));
+user_t *bois;
 int n_users = 0;
 
 MFRC522 mfrc(SS_PIN, RST_PIN);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void loadUser(char index) {
-    for (int i = 0; i < 8; i++) {
-        bois[index][i] = EEPROM.read(8 * index + 9);
+    for (int i = 0; i < 4; i++) {
+        bois[index][i] = EEPROM.read(5 + (4 * index) + i);
     }
 }
 
 void loadUsers() {
-    char count = EEPROM.read(0);
+    n_users = EEPROM.read(0);
 
-    for (int i = 0; i < 8; i++) {
+    bois = (user_t*) malloc(n_users * sizeof(user_t));
+
+    for (int i = 0; i < 4; i++) {
         master[i] = EEPROM.read(i + 1);
     }
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < n_users; i++) {
         loadUser(i);
     }
 }
@@ -79,15 +81,24 @@ void masterMode() {
 
         CardType cardType = checkCard();
         if (cardType == Boi) {
-            lcd.print("you idiot");
-            // clear dat boi
+            // delete the user
         } else if (cardType == Unauthorized) {
+            bois = (user_t*) realloc(bois, (n_users + 1) * sizeof(user_t));
+
             bois[n_users][0] = mfrc.uid.uidByte[0];
             bois[n_users][1] = mfrc.uid.uidByte[1];
             bois[n_users][2] = mfrc.uid.uidByte[2];
             bois[n_users][3] = mfrc.uid.uidByte[3];
+
+            EEPROM.write(5 + n_users * 4 + 0, bois[n_users][0]);
+            EEPROM.write(5 + n_users * 4 + 1, bois[n_users][1]);
+            EEPROM.write(5 + n_users * 4 + 2, bois[n_users][2]);
+            EEPROM.write(5 + n_users * 4 + 3, bois[n_users][3]);
+
             n_users++;
-            // realloc
+
+            EEPROM.write(0, n_users);
+            
         } else if (cardType == Master) {
             Serial.println("exitting master mode");
             delay(2000);
@@ -99,40 +110,47 @@ void masterMode() {
 void setup() {
     pinMode(WIPE_BUTTON, INPUT);
     pinMode(WIPE_BUTTON_ALWAYS_ON, OUTPUT);
+    pinMode(RELAY, OUTPUT);
     digitalWrite(WIPE_BUTTON_ALWAYS_ON, HIGH);
     digitalWrite(WIPE_BUTTON, LOW);
 
+
     Serial.begin(115200);
+    delay(2000);
+    Serial.println("boii");
 
     SPI.begin();
-    mfrc.PCD_Init();
-    master[0] = 0xA0;
-    master[1] = 0xDD;
-    master[2] = 0x49;
-    master[3] = 0x1A;
+    
+    loadUsers();
+    Serial.println("users loaded");
 
     lcd.init();
     lcd.backlight();
     lcd.print("AAAAAAAAAAAAAAAA");
 
+    mfrc.PCD_Init();
     mfrc.PCD_SetAntennaGain(mfrc.RxGain_max);
 }
 
 
 void loop() {
-    lcd.print("AAAAAAAAAAAAAAAA");
-    if (!mfrc.PICC_IsNewCardPresent())
+    if (!mfrc.PICC_IsNewCardPresent()) 
         return;
 
     if (!mfrc.PICC_ReadCardSerial())
         return;
 
+    
     CardType cardType = checkCard();
     if (cardType == Master) {
         masterMode();
     } else if (cardType == Boi) {
         Serial.println("boi we got some boi");
         lcd.print("Welcome you motherfucker");
+
+        digitalWrite(RELAY, HIGH);
+        delay(3000);
+        digitalWrite(RELAY, LOW);
     } else {
         Serial.println("boi we got some špión here");
         lcd.print("go out you špión");
