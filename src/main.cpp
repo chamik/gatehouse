@@ -10,6 +10,7 @@
 #define WIPE_BUTTON_ALWAYS_ON 8
 #define SS_PIN 10
 #define RST_PIN 9
+#define WELCOME_MESSAGE " I AM READY UWU"
 
 typedef uint8_t user_t[4];
 
@@ -68,8 +69,7 @@ CardType checkCard() {
 void masterMode() {
     Serial.println("boi we got master");
     lcd.clear();
-    lcd.print("     MASTER");
-    delay(2000);
+    lcd.print("EPIC MASTER MODE");
 
     // load new cards and do some other boring stuff
     while (true) {
@@ -82,6 +82,13 @@ void masterMode() {
         CardType cardType = checkCard();
         if (cardType == Boi) {
             // delete the user
+
+            lcd.print(" THIS IS SO SAD");
+            lcd.setCursor(0, 1);
+            lcd.print(" PLAY DESPACITO");
+            lcd.home();
+            delay(500);
+
         } else if (cardType == Unauthorized) {
             bois = (user_t*) realloc(bois, (n_users + 1) * sizeof(user_t));
 
@@ -99,11 +106,18 @@ void masterMode() {
 
             EEPROM.write(0, n_users);
             
+            Serial.println("new boi added xd");
+            lcd.print("NEW BOI ADDED XD");
+            delay(500);
+
         } else if (cardType == Master) {
-            Serial.println("exitting master mode");
-            delay(2000);
+            Serial.println("so long master uwu...");
+            lcd.print(" BYE SENPAI UWU");
+            delay(1000);
             return;
         }
+
+        lcd.print("EPIC MASTER MODE");
     }
 }
 
@@ -116,17 +130,16 @@ void setup() {
 
 
     Serial.begin(115200);
-    delay(2000);
-    Serial.println("boii");
 
     SPI.begin();
     
     loadUsers();
-    Serial.println("users loaded");
+    Serial.println("i am ready to serve you owo");
 
     lcd.init();
     lcd.backlight();
-    lcd.print("AAAAAAAAAAAAAAAA");
+    lcd.home();
+    lcd.print(WELCOME_MESSAGE);
 
     mfrc.PCD_Init();
     mfrc.PCD_SetAntennaGain(mfrc.RxGain_max);
@@ -145,14 +158,20 @@ void loop() {
     if (cardType == Master) {
         masterMode();
     } else if (cardType == Boi) {
-        Serial.println("boi we got some boi");
-        lcd.print("Welcome you motherfucker");
+        Serial.println("i know the taste of this one uwu");
+        lcd.print(" WELCOME HUMAN!");
 
         digitalWrite(RELAY, HIGH);
         delay(3000);
         digitalWrite(RELAY, LOW);
     } else {
         Serial.println("boi we got some špión here");
-        lcd.print("go out you špión");
+        lcd.print("     OPENED");
+        lcd.setCursor(1, 0);
+        lcd.print("(jk go away lol)");
+        lcd.home();
+        delay(1000);
     }
+
+    lcd.print(WELCOME_MESSAGE);
 }
