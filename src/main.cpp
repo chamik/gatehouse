@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include <EEPROM.h>  // We are going to read and write PICC's UIDs from/to EEPROM
-#include <SPI.h>     // RC522 Module uses SPI protocol
-#include <MFRC522.h> // Library for Mifare RC522 Devices
+#include <EEPROM.h>  // Definetly did not copy this code
+#include <SPI.h>     // Or this
+#include <MFRC522.h> // Or this
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -67,7 +67,7 @@ CardType checkCard() {
 }
 
 void masterMode() {
-    Serial.println("boi we got master");
+    Serial.println("I wasn't expecting you so early senpai *blush*"); // I want to fucking die
     lcd.clear();
     lcd.print("EPIC MASTER MODE");
 
@@ -81,8 +81,10 @@ void masterMode() {
 
         CardType cardType = checkCard();
         if (cardType == Boi) {
+
             // delete the user
 
+            Serial.print("I'll get rid of him... *loads gun with religious intent*");
             lcd.print(" THIS IS SO SAD");
             lcd.setCursor(0, 1);
             lcd.print(" PLAY DESPACITO");
@@ -140,6 +142,7 @@ void setup() {
     lcd.backlight();
     lcd.home();
     lcd.print(WELCOME_MESSAGE);
+    Serial.print("Let the games begin!");
 
     mfrc.PCD_Init();
     mfrc.PCD_SetAntennaGain(mfrc.RxGain_max);
@@ -165,9 +168,9 @@ void loop() {
         delay(3000);
         digitalWrite(RELAY, LOW);
     } else {
-        Serial.println("boi we got some špión here");
+        Serial.println("Impossible. Perhaps the archives are incomplete?");
         lcd.print("     OPENED");
-        lcd.setCursor(1, 0);
+        lcd.setCursor(0, 1);
         lcd.print("(jk go away lol)");
         lcd.home();
         delay(1000);
