@@ -6,10 +6,11 @@
 #include <LiquidCrystal_I2C.h>
 
 #define RELAY 7
-#define WIPE_BUTTON 6
+#define OPEN_BUTTON 6
 #define WIPE_BUTTON_ALWAYS_ON 8
 #define SS_PIN 10
 #define RST_PIN 9
+#define BUTTON_PIN A0
 #define WELCOME_MESSAGE " I AM READY UWU"
 
 typedef uint8_t user_t[4];
@@ -81,8 +82,29 @@ void masterMode() {
 
         CardType cardType = checkCard();
         if (cardType == Boi) {
+            for (int i = 0; i < n_users; i++)
+            {
+                if (mfrc.uid.uidByte[0] == bois[i][0] &&
+                    mfrc.uid.uidByte[1] == bois[i][1] &&
+                    mfrc.uid.uidByte[2] == bois[i][2] &&
+                    mfrc.uid.uidByte[3] == bois[i][3]) {
 
-            // delete the user
+                    bois[i][0] = bois[n_users - 1][0];
+                    bois[i][1] = bois[n_users - 1][1];
+                    bois[i][2] = bois[n_users - 1][2];
+                    bois[i][3] = bois[n_users - 1][3];
+
+                    EEPROM.write(5 + 4 * i + 0, bois[n_users - 1][0]);
+                    EEPROM.write(5 + 4 * i + 1, bois[n_users - 1][1]);
+                    EEPROM.write(5 + 4 * i + 2, bois[n_users - 1][2]);
+                    EEPROM.write(5 + 4 * i + 3, bois[n_users - 1][3]);
+
+                    break;
+                }
+            }
+            
+            n_users -= 1;
+            EEPROM.write(0, n_users);
 
             Serial.print("I'll get rid of him... *loads gun with religious intent*");
             lcd.print(" THIS IS SO SAD");
@@ -124,11 +146,14 @@ void masterMode() {
 }
 
 void setup() {
-    pinMode(WIPE_BUTTON, INPUT);
+    pinMode(OPEN_BUTTON, OUTPUT);
     pinMode(WIPE_BUTTON_ALWAYS_ON, OUTPUT);
     pinMode(RELAY, OUTPUT);
+    pinMode(BUTTON_PIN, INPUT);
     digitalWrite(WIPE_BUTTON_ALWAYS_ON, HIGH);
-    digitalWrite(WIPE_BUTTON, LOW);
+    digitalWrite(OUTPUT, HIGH);
+    digitalWrite(RELAY, HIGH);
+    digitalWrite(OPEN_BUTTON, HIGH);
 
 
     Serial.begin(115200);
@@ -150,6 +175,15 @@ void setup() {
 
 
 void loop() {
+    Serial.println(analogRead(BUTTON_PIN));
+    if (analogRead(BUTTON_PIN) < 5) {
+        digitalWrite(RELAY, LOW);
+        delay(3000);
+        digitalWrite(RELAY, HIGH);
+
+        return;
+    }
+
     if (!mfrc.PICC_IsNewCardPresent()) 
         return;
 
@@ -164,9 +198,9 @@ void loop() {
         Serial.println("i know the taste of this one uwu");
         lcd.print(" WELCOME HUMAN!");
 
-        digitalWrite(RELAY, HIGH);
-        delay(3000);
         digitalWrite(RELAY, LOW);
+        delay(3000);
+        digitalWrite(RELAY, HIGH);
     } else {
         Serial.println("Impossible. Perhaps the archives are incomplete?");
         lcd.print("     OPENED");
