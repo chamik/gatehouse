@@ -6,11 +6,10 @@
 #include <LiquidCrystal_I2C.h>
 
 #define RELAY 7
-#define OPEN_BUTTON 6
 #define WIPE_BUTTON_ALWAYS_ON 8
 #define SS_PIN 10
 #define RST_PIN 9
-#define BUTTON_PIN A0
+#define BUTTON_PIN 5
 #define WELCOME_MESSAGE " OH HELLO THERE"
 
 typedef uint8_t user_t[4];
@@ -72,11 +71,20 @@ CardType checkCard() {
     return Unauthorized;
 }
 
+
+// Open Sesame!
+void openDoor() {
+    digitalWrite(RELAY, LOW);
+    delay(3000);
+    digitalWrite(RELAY, HIGH);
+}
+
 // Senpai uwu
 void masterMode() {
     Serial.println("I wasn't expecting you so early senpai *blush*"); // I want to fucking die
     lcd.clear();
     lcd.print("EPIC MASTER MODE");
+    delay(500);
 
     // load new cards and do some other boring stuff
     while (true) {
@@ -118,7 +126,7 @@ void masterMode() {
             EEPROM.write(0, n_users);
 
             lcd.clear();
-            Serial.print("I'll get rid of him... *loads gun with religious intent*");
+            Serial.println("I'll get rid of him... *loads gun with religious intent*");
             lcd.print("  BEGONE THOT!");
             delay(500);
 
@@ -161,7 +169,6 @@ void masterMode() {
 
 void setup() {
     // Init all the things
-    pinMode(OPEN_BUTTON, OUTPUT);
     pinMode(WIPE_BUTTON_ALWAYS_ON, OUTPUT);
     pinMode(RELAY, OUTPUT);
     pinMode(BUTTON_PIN, INPUT);
@@ -169,8 +176,6 @@ void setup() {
     digitalWrite(WIPE_BUTTON_ALWAYS_ON, HIGH);
     digitalWrite(OUTPUT, HIGH);
     digitalWrite(RELAY, HIGH);
-    digitalWrite(OPEN_BUTTON, HIGH);
-
 
     Serial.begin(115200);
 
@@ -179,11 +184,11 @@ void setup() {
     loadUsers();
     Serial.println("i am ready to serve you owo");
 
-    lcd.init();
-    lcd.backlight();
-    lcd.home();
-    lcd.print(WELCOME_MESSAGE);
-    Serial.print("Let the games begin!");
+    //lcd.init();
+    //lcd.backlight();
+    //lcd.home();
+    //lcd.print(WELCOME_MESSAGE);
+    Serial.println("Let the games begin!");
 
     mfrc.PCD_Init();
     mfrc.PCD_SetAntennaGain(mfrc.RxGain_max);
@@ -193,7 +198,7 @@ void setup() {
 void loop() {
     // Check if open button is pressed, if yes opend door
     Serial.println(analogRead(BUTTON_PIN));
-    if (analogRead(BUTTON_PIN) < 5) {
+    if (digitalRead(BUTTON_PIN) == LOW) {
         openDoor();
         return;
     }
@@ -228,16 +233,10 @@ void loop() {
         lcd.setCursor(0, 1);
         lcd.print(" jk go away lol");
         lcd.home();
-        delay(1000);
+        delay(3000);
     }
 
     lcd.clear();
     lcd.print(WELCOME_MESSAGE);
 }
 
-// Open Sesame!
-void openDoor() {
-    digitalWrite(RELAY, LOW);
-    delay(3000);
-    digitalWrite(RELAY, HIGH);
-}
