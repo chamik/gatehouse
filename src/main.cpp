@@ -196,7 +196,7 @@ void setup() {
 
 
 void loop() {
-    // Check if open button is pressed, if yes opend door
+    // Check if open button is pressed, if yes open the door
     Serial.println(analogRead(BUTTON_PIN));
     if (digitalRead(BUTTON_PIN) == LOW) {
         openDoor();
